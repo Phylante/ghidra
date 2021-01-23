@@ -85,11 +85,13 @@ public class CreateRtti1BackgroundCmd extends AbstractCreateDataBackgroundCmd<Rt
 
 	private boolean createRtti3() throws CancelledException {
 
-		monitor.checkCanceled();
+		/*monitor.checkCanceled();
 
 		CreateRtti3BackgroundCmd cmd =
 			new CreateRtti3BackgroundCmd(model.getRtti3Model(), applyOptions);
 		return cmd.applyTo(model.getProgram(), monitor);
+        */
+        return true;
 	}
 
 	@Override

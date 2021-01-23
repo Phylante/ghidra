@@ -76,7 +76,7 @@ public class Rtti1Model extends AbstractCreateRttiDataModel {
 
 	private DataType dataType;
 	private TypeDescriptorModel rtti0Model;
-	private Rtti3Model rtti3Model;
+//	private Rtti3Model rtti3Model;
 
 	/**
 	 * Creates the model for the BaseClassDescriptor (RTTI 1) data type.
@@ -182,27 +182,27 @@ public class Rtti1Model extends AbstractCreateRttiDataModel {
 		}
 
 		// Last component is either a direct reference or an image base offset.
-		Address rtti3Address =
-			getReferencedAddress(program, startAddress.add(CLASS_HIERARCHY_POINTER_OFFSET));
-		if (rtti3Address == null) {
-			invalid(); // throws Exception
-		}
+//		Address rtti3Address =
+//			getReferencedAddress(program, startAddress.add(CLASS_HIERARCHY_POINTER_OFFSET));
+//		if (rtti3Address == null) {
+//			invalid(); // throws Exception
+//		}
 		// Make sure we don't follow flow or will get stuck in infinite loop.
 		DataValidationOptions dontFollowOptions = new DataValidationOptions(validationOptions);
 		dontFollowOptions.setValidateReferredToData(false);
-		rtti3Model = new Rtti3Model(program, rtti3Address, dontFollowOptions);
-		if (validateReferredToData) {
-			try {
-				rtti3Model.validate();
-			}
-			catch (Exception e) {
-				invalid(e); // throws Exception
-			}
-		}
-		else if (!rtti3Model.isLoadedAndInitializedAddress()) {
-			invalid("Data referencing " + rtti3Model.getName() +
-				" data type isn't a loaded and initialized address " + rtti3Address + ".");
-		}
+//		rtti3Model = new Rtti3Model(program, rtti3Address, dontFollowOptions);
+//		if (validateReferredToData) {
+//			try {
+//				rtti3Model.validate();
+//			}
+//			catch (Exception e) {
+//				invalid(e); // throws Exception
+//			}
+//		}
+//		else if (!rtti3Model.isLoadedAndInitializedAddress()) {
+//			invalid("Data referencing " + rtti3Model.getName() +
+//				" data type isn't a loaded and initialized address " + rtti3Address + ".");
+//		}
 	}
 
 	/**
@@ -213,10 +213,10 @@ public class Rtti1Model extends AbstractCreateRttiDataModel {
 	public static DataType getDataType(Program program) {
 		// Create simple data types for RTTI 1 &  RTTI 3.
 		DataType rtti1Dt = getSimpleDataType(program);
-		DataType rtti3Dt = Rtti3Model.getSimpleDataType(program);
+		//DataType rtti3Dt = Rtti3Model.getSimpleDataType(program);
 		// Now make each refer to the other.
-		setRtti3DataType(rtti1Dt, program, rtti3Dt);
-		Rtti3Model.setRtti1DataType(rtti3Dt, program, rtti1Dt);
+		//setRtti3DataType(rtti1Dt, program, rtti3Dt);
+		//Rtti3Model.setRtti1DataType(rtti3Dt, program, rtti1Dt);
 		return MSDataTypeUtils.getMatchingDataType(program, rtti1Dt);
 	}
 
@@ -228,13 +228,13 @@ public class Rtti1Model extends AbstractCreateRttiDataModel {
 	 */
 	static void setRtti3DataType(DataType rtti1Dt, Program program, DataType rtti3Dt) {
 
-		DataTypeManager dataTypeManager = program.getDataTypeManager();
+//		DataTypeManager dataTypeManager = program.getDataTypeManager();
 		boolean is64Bit = MSDataTypeUtils.is64Bit(program);
-		Structure rtti1Struct = (Structure) DataTypeUtils.getBaseDataType(rtti1Dt);
-		DataType rtti3RefDt =
-			is64Bit ? new ImageBaseOffset32DataType(dataTypeManager) : new PointerDataType(rtti3Dt);
-		rtti1Struct.replace(CLASS_HIERARCHY_POINTER_ORDINAL, rtti3RefDt, rtti3RefDt.getLength(),
-			"pClassHierarchyDescriptor", "ref to ClassHierarchyDescriptor (RTTI 3) for class");
+//		Structure rtti1Struct = (Structure) DataTypeUtils.getBaseDataType(rtti1Dt);
+//		DataType rtti3RefDt =
+//			is64Bit ? new ImageBaseOffset32DataType(dataTypeManager) : new PointerDataType(rtti3Dt);
+//		rtti1Struct.replace(CLASS_HIERARCHY_POINTER_ORDINAL, rtti3RefDt, rtti3RefDt.getLength(),
+//			"pClassHierarchyDescriptor", "ref to ClassHierarchyDescriptor (RTTI 3) for class");
 	}
 
 	/**
@@ -249,8 +249,8 @@ public class Rtti1Model extends AbstractCreateRttiDataModel {
 		DataType rtti0Dt = TypeDescriptorModel.getDataType(program);
 		DataType rtti0RefDt =
 			is64Bit ? new ImageBaseOffset32DataType(dataTypeManager) : new PointerDataType(rtti0Dt);
-		DataType rtti3RefDt =
-			is64Bit ? new ImageBaseOffset32DataType(dataTypeManager) : new PointerDataType();
+//		DataType rtti3RefDt =
+//			is64Bit ? new ImageBaseOffset32DataType(dataTypeManager) : new PointerDataType();
 
 		CategoryPath categoryPath = new CategoryPath(CATEGORY_PATH);
 		StructureDataType struct =
@@ -264,8 +264,8 @@ public class Rtti1Model extends AbstractCreateRttiDataModel {
 		Structure pmdDataType = MSDataTypeUtils.getPMDDataType(program);
 		struct.add(pmdDataType, "where", "member displacement structure");
 		struct.add(dWordDataType, "attributes", "bit flags");
-		struct.add(rtti3RefDt, "pClassHierarchyDescriptor",
-			"ref to ClassHierarchyDescriptor (RTTI 3) for class");
+//		struct.add(rtti3RefDt, "pClassHierarchyDescriptor",
+//			"ref to ClassHierarchyDescriptor (RTTI 3) for class");
 
 		return new TypedefDataType(categoryPath, DATA_TYPE_NAME, struct, dataTypeManager);
 	}
@@ -360,19 +360,19 @@ public class Rtti1Model extends AbstractCreateRttiDataModel {
 			getMemBuffer());
 	}
 
-	/**
-	 * Gets the address of the RTTI 3 structure that is referred to by a component of this RTTI 1.
-	 * @return the address of the RTTI 3
-	 * @throws InvalidDataTypeException if this isn't a valid model at the specified address.
-	 */
-	public Address getRtti3Address() throws InvalidDataTypeException {
-
-		checkValidity();
-		Program program = getProgram();
-		Address rtti1Address = getAddress();
-		Address rtti3ComponentAddress = rtti1Address.add(CLASS_HIERARCHY_POINTER_OFFSET);
-		return getReferencedAddress(program, rtti3ComponentAddress);
-	}
+//	/**
+//	 * Gets the address of the RTTI 3 structure that is referred to by a component of this RTTI 1.
+//	 * @return the address of the RTTI 3
+//	 * @throws InvalidDataTypeException if this isn't a valid model at the specified address.
+//	 */
+//	public Address getRtti3Address() throws InvalidDataTypeException {
+//
+//		checkValidity();
+//		Program program = getProgram();
+//		Address rtti1Address = getAddress();
+//		Address rtti3ComponentAddress = rtti1Address.add(CLASS_HIERARCHY_POINTER_OFFSET);
+//		return getReferencedAddress(program, rtti3ComponentAddress);
+//	}
 
 	@Override
 	public boolean refersToRtti0(Address rtti0Address) {
@@ -406,12 +406,7 @@ public class Rtti1Model extends AbstractCreateRttiDataModel {
 	 * @return the BaseClassDescriptor (RTTI 3) model or null.
 	 */
 	public Rtti3Model getRtti3Model() {
-		try {
-			checkValidity();
-		}
-		catch (InvalidDataTypeException e) {
-			return null;
-		}
-		return rtti3Model;
+		return null;
 	}
+    
 }
